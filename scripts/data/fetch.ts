@@ -150,7 +150,7 @@ async function importYear(year: number): Promise<number> {
 async function main() {
   fs.mkdirSync(RAW, { recursive: true });
   const all = has('--all');
-  const yearsArg = arg('--years') ?? process.argv.slice(2).find((s) => /^\d{4}$/.test(s));
+  const yearsArg = arg('--years') ?? process.argv.slice(2).find((s) => /^\d{4}(,\d{4})*$/.test(s));
   let years: number[] = [];
   if (all) {
     years = Array.from({ length: 77 }, (_, i) => 1950 + i);
