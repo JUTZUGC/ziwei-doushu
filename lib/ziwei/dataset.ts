@@ -10,6 +10,7 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 // @ts-expect-error Node 22 内置 node:sqlite，@types/node 还没有对应声明
 import { DatabaseSync } from 'node:sqlite';
 import type { BirthInfo } from './types';
@@ -71,8 +72,22 @@ interface DatabaseLike {
 let cachedDb: DatabaseLike | null = null;
 let cachedPath = '';
 
+/** 仓库内的 data 目录（与启动时的 cwd 无关） */
+function repoDataDir(): string | null {
+  try {
+    return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data');
+  } catch {
+    return null;
+  }
+}
+
 export function dataDir(): string {
-  return process.env.ZIWEI_DATA_DIR || path.join(process.cwd(), 'data');
+  if (process.env.ZIWEI_DATA_DIR) return process.env.ZIWEI_DATA_DIR;
+  const cwdDir = path.join(process.cwd(), 'data');
+  if (fs.existsSync(path.join(cwdDir, 'ziwei.sqlite'))) return cwdDir;
+  const repoDir = repoDataDir();
+  if (repoDir && fs.existsSync(path.join(repoDir, 'ziwei.sqlite'))) return repoDir;
+  return cwdDir;
 }
 
 export function dbPath(): string {
