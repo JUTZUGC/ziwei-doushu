@@ -85,7 +85,7 @@ npm run mcp
 
 `.mcp.json` ships a stdio configuration. The host gate is enforced: `initialize`, `ping`, `tools/list` and `tools/call` all check the ancestor process chain first, and any host other than Dumate receives `HOST_NOT_ALLOWED` — there is no bypass switch. The Skill's CLI fallback uses the same gate.
 
-Tools: `ziwei_chart`, `ziwei_interpret`, `ziwei_patterns`, `ziwei_classics`, `ziwei_heming`, `ziwei_yunxian`, `ziwei_search`, `ziwei_info`, `ziwei_help`.
+Tools: `ziwei_chart`, `ziwei_interpret`, `ziwei_dataset_fetch`, `ziwei_patterns`, `ziwei_classics`, `ziwei_heming`, `ziwei_yunxian`, `ziwei_search`, `ziwei_info`, `ziwei_help`.
 
 ### Skill
 
@@ -108,7 +108,7 @@ npm run data:fetch -- --years 1990
 npm run data:status
 ```
 
-Licensed CC BY 4.0; provenance is documented in [NOTICE](./NOTICE). For years that have not been imported, the web app and MCP return an explicit download hint.
+Licensed CC BY 4.0; provenance is documented in [NOTICE](./NOTICE). For a year that has not been imported, the web app shows a “download and import” button, and `ziwei_interpret` returns `offerDownload` in MCP so the assistant can ask first and then call `ziwei_dataset_fetch`.
 
 ### AI interpretation
 

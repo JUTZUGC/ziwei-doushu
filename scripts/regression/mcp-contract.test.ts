@@ -13,6 +13,7 @@ import { TOOLS, callTool } from '../../mcp/tools';
 const EXPECTED = [
   'ziwei_chart',
   'ziwei_interpret',
+  'ziwei_dataset_fetch',
   'ziwei_patterns',
   'ziwei_classics',
   'ziwei_heming',

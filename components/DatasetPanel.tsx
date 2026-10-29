@@ -26,12 +26,22 @@ interface DatasetResponse {
   error?: string;
   hints?: string[];
   dimensions?: Record<string, string>;
+  offerDownload?: {
+    year: number;
+    tool: string;
+    arguments: { year: number };
+    estimatedDownloadMB: number;
+    message: string;
+  };
 }
 
 export default function DatasetPanel({ chart }: { chart: ZiweiChart }) {
   const [data, setData] = useState<DatasetResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState('overview');
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const b = chart.birthInfo;
@@ -54,7 +64,27 @@ export default function DatasetPanel({ chart }: { chart: ZiweiChart }) {
       .catch(() => setData({ available: false, key: '', error: '解读数据请求失败' }))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chart]);
+  }, [chart, reloadKey]);
+
+  const handleDownload = async () => {
+    const year = data?.offerDownload?.year ?? chart.birthInfo.year;
+    setFetching(true);
+    setFetchError('');
+    try {
+      const res = await fetch('/api/dataset/fetch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ year }),
+      });
+      const json = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !json.ok) throw new Error(json.error ?? '导入失败');
+      setReloadKey((k) => k + 1);
+    } catch (e) {
+      setFetchError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const dims = data?.dimensions ?? {};
 
@@ -78,11 +108,34 @@ export default function DatasetPanel({ chart }: { chart: ZiweiChart }) {
       {!loading && data && !data.available && (
         <div style={{ padding: 16, fontSize: 12, lineHeight: 1.8, color: '#999' }}>
           <div>{data.error ?? '本地还没有导入解读数据集'}</div>
-          <div style={{ marginTop: 8, color: '#c8a020' }}>在仓库根目录执行：</div>
-          <code style={{ display: 'block', marginTop: 4, padding: '8px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.25)', fontSize: 12 }}>
-            npm run data:fetch -- --years {chart.birthInfo.year}
-          </code>
-          <div style={{ marginTop: 6 }}>导入后刷新页面；排盘与 AI 分析不受影响。</div>
+          {data.offerDownload && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ color: '#c8a020' }}>{data.offerDownload.message}</div>
+              <button
+                onClick={handleDownload}
+                disabled={fetching}
+                style={{
+                  marginTop: 8,
+                  padding: '8px 16px',
+                  borderRadius: 10,
+                  fontSize: 12,
+                  cursor: fetching ? 'wait' : 'pointer',
+                  border: '1px solid rgba(200,160,60,0.5)',
+                  background: fetching ? 'rgba(200,160,60,0.1)' : 'rgba(200,160,60,0.16)',
+                  color: '#c8a020',
+                }}
+              >
+                {fetching
+                  ? '正在下载并导入，请稍候…'
+                  : `下载并导入 ${data.offerDownload.year} 年数据（约 ${data.offerDownload.estimatedDownloadMB} MB）`}
+              </button>
+            </div>
+          )}
+          {fetchError && <div style={{ marginTop: 8, color: '#f87171' }}>导入失败：{fetchError}</div>}
+          <div style={{ marginTop: 10, color: '#777', fontSize: 11 }}>
+            也可以手动执行 npm run data:fetch -- --years {chart.birthInfo.year}
+          </div>
+          <div style={{ marginTop: 6 }}>导入后自动刷新；排盘与 AI 分析不受影响。</div>
         </div>
       )}
 

@@ -5,6 +5,7 @@ import { searchClassics, ALL_BOOKS, TOTAL_PARAGRAPHS } from '../lib/classics';
 import { STAR_IN_FUQI_GU, HEMING_METHODOLOGY } from '../lib/ziwei/heming-knowledge';
 import { getDaXianIndexForYear, getDaXianStartYear, getDaXianYears } from '../lib/ziwei/yunxian-context';
 import { getDatasetStatus, getInterpretation, pickDimensions, DIMENSIONS, DIMENSION_LABELS } from '../lib/ziwei/dataset';
+import { fetchAndImportYear, isValidYear } from '../lib/ziwei/dataset-fetch';
 import type { BirthInfo, ZiweiChart } from '../lib/ziwei/types';
 
 export const VERSION = '1.0.0';
@@ -118,6 +119,17 @@ export const TOOLS = [
     },
   },
   {
+    name: 'ziwei_dataset_fetch',
+    description: '下载并导入某一年的官方 v4.0 解读数据集。单年压缩包约 2 MB，导入后该年可查 13 维解读。仅在用户同意后调用。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        year: { type: 'number', description: '出生年份，1950–2026' },
+      },
+      required: ['year'],
+    },
+  },
+  {
     name: 'ziwei_patterns',
     description: '格局判定与命宫摘要。返回命盘中识别出的格局、命宫主星与三方四正摘要。',
     inputSchema: {
@@ -211,7 +223,12 @@ export async function callTool(name: string, args: any): Promise<unknown> {
     case 'ziwei_interpret': {
       const birth = toBirth(args);
       const result = getInterpretation(birth);
-      if (!result.available || !result.chart) return result;
+      if (!result.available || !result.chart) {
+        return {
+          ...result,
+          next: '先把 offerDownload.message 告诉用户；用户同意后再调用 ziwei_dataset_fetch（参数 year 取 offerDownload.arguments.year）',
+        };
+      }
       const dims = Array.isArray(args.dimensions) ? args.dimensions : undefined;
       return {
         available: true,
@@ -221,6 +238,19 @@ export async function callTool(name: string, args: any): Promise<unknown> {
         mingStar: result.chart.mingStar,
         labels: DIMENSION_LABELS,
         dimensions: pickDimensions(result.chart, dims),
+      };
+    }
+    case 'ziwei_dataset_fetch': {
+      const year = Number(args?.year);
+      if (!isValidYear(year)) throw new Error('year 需在 1950–2026 之间');
+      const r = await fetchAndImportYear(year);
+      return {
+        ok: true,
+        year: r.year,
+        imported: r.imported,
+        sizeMB: Number((r.bytes / 1024 / 1024).toFixed(1)),
+        database: r.database,
+        note: `已导入 ${r.year} 年 ${r.imported} 张命盘，可以重新调用 ziwei_interpret`,
       };
     }
     case 'ziwei_patterns': {
@@ -305,6 +335,7 @@ export async function callTool(name: string, args: any): Promise<unknown> {
         tips: [
           '注册或更新 MCP 后，先重启百度搭子客户端，工具才会进入工具列表；新开对话不一定生效。',
           '说「紫微斗数帮助」时如果回答来自知识库、没有调用工具，直接说「调用 ziwei_help」即可强制走 MCP。',
+          '查某年解读时如果本地没有数据，返回里带 offerDownload，先问用户要不要下载；同意后再调用 ziwei_dataset_fetch。',
           'MCP 只在百度搭子中可用，其它宿主会返回 HOST_NOT_ALLOWED，没有绕过开关。',
         ],
         mcp: {

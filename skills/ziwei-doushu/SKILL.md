@@ -24,6 +24,7 @@ description: 紫微斗数排盘与解读。用户询问命盘、紫微斗数、�
 |---|---|
 | `ziwei_chart` | 排盘，返回完整命盘 JSON |
 | `ziwei_interpret` | 查 13 维数据集解读 |
+| `ziwei_dataset_fetch` | 下载并导入某年解读数据（用户同意后再调用） |
 | `ziwei_patterns` | 格局与命宫摘要 |
 | `ziwei_classics` | 古籍原文检索 |
 | `ziwei_heming` | 双盘合盘 |
@@ -58,7 +59,7 @@ npm run ziwei -- help
 ## 回答流程
 
 1. 先排盘：`ziwei_chart`，拿到十二宫、主星、四化、大限
-2. 需要具体断语时：`ziwei_interpret`；若返回“本地还没有导入数据集”，只使用排盘结果与古籍，不编造 13 维解读
+2. 需要具体断语时：`ziwei_interpret`；若返回 `offerDownload`，先问用户是否下载该年数据，同意后调用 `ziwei_dataset_fetch`，成功后再重试 `ziwei_interpret`；用户拒绝时只用排盘结果与古籍，不编造 13 维解读
 3. 问格局：`ziwei_patterns`
 4. 问原文：`ziwei_classics`
 5. 合盘：`ziwei_heming`

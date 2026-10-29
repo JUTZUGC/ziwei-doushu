@@ -90,12 +90,35 @@ export function dataDir(): string {
   return cwdDir;
 }
 
+/** 导入数据时的目标目录：优先写已有数据库的目录，否则写仓库 data/，避免随 cwd 漂移 */
+export function importDataDir(): string {
+  if (process.env.ZIWEI_DATA_DIR) return process.env.ZIWEI_DATA_DIR;
+  const current = dataDir();
+  if (fs.existsSync(path.join(current, 'ziwei.sqlite'))) return current;
+  const repoDir = repoDataDir();
+  if (repoDir && !repoDir.includes(`${path.sep}.next${path.sep}`)) return repoDir;
+  return current;
+}
+
 export function dbPath(): string {
   return path.join(dataDir(), 'ziwei.sqlite');
 }
 
 export function hasDataset(): boolean {
   return fs.existsSync(dbPath());
+}
+
+/** 导入数据后清掉只读连接缓存，让后续查询看到新库 */
+export function resetDatasetCache(): void {
+  if (cachedDb) {
+    try {
+      cachedDb.close();
+    } catch {
+      /* ignore */
+    }
+  }
+  cachedDb = null;
+  cachedPath = '';
 }
 
 function openDb(): DatabaseLike | null {
@@ -123,6 +146,14 @@ export interface DatasetChart {
   dimensions: Record<string, string>;
 }
 
+export interface DatasetOffer {
+  year: number;
+  tool: string;
+  arguments: { year: number };
+  estimatedDownloadMB: number;
+  message: string;
+}
+
 export interface DatasetResult {
   available: boolean;
   key: string;
@@ -131,6 +162,7 @@ export interface DatasetResult {
   chart?: DatasetChart;
   error?: string;
   hints?: string[];
+  offerDownload?: DatasetOffer;
 }
 
 function rowToChart(row: DatasetRow): DatasetChart {
@@ -152,6 +184,16 @@ function rowToChart(row: DatasetRow): DatasetChart {
   };
 }
 
+function downloadOffer(year: number): DatasetOffer {
+  return {
+    year,
+    tool: 'ziwei_dataset_fetch',
+    arguments: { year },
+    estimatedDownloadMB: 2,
+    message: `本地还没有 ${year} 年的解读数据（压缩包约 2 MB，导入后约数百 MB）。是否现在下载并导入？`,
+  };
+}
+
 export function getInterpretation(birth: Pick<BirthInfo, 'year' | 'month' | 'day' | 'hour' | 'gender'>): DatasetResult {
   const key = buildDatasetKey(birth);
   const db = openDb();
@@ -166,6 +208,7 @@ export function getInterpretation(birth: Pick<BirthInfo, 'year' | 'month' | 'day
         `先运行 npm run data:fetch -- --years ${birth.year}`,
         '导入完成后再调用 ziwei_interpret',
       ],
+      offerDownload: downloadOffer(birth.year),
     };
   }
   const row = db.prepare('SELECT k,y,m,d,h,g,ms,c FROM charts WHERE k = ?').get(key) as DatasetRow | undefined;
@@ -180,6 +223,7 @@ export function getInterpretation(birth: Pick<BirthInfo, 'year' | 'month' | 'day
         '检查出生日期、时辰序号与性别是否与数据集口径一致',
         '数据集按时辰序号 0–11 排盘，不做真太阳时校正',
       ],
+      offerDownload: downloadOffer(birth.year),
     };
   }
   return {

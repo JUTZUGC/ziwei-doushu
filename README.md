@@ -87,7 +87,7 @@ npm run mcp
 
 `.mcp.json` 已提供 stdio 配置。门禁是硬约束：`initialize`、`ping`、`tools/list`、`tools/call` 全部先校验宿主进程链，非百度搭子一律返回 `HOST_NOT_ALLOWED`，没有绕过开关。Skill 的 CLI 兜底走同一套门禁。
 
-工具：`ziwei_chart`、`ziwei_interpret`、`ziwei_patterns`、`ziwei_classics`、`ziwei_heming`、`ziwei_yunxian`、`ziwei_search`、`ziwei_info`、`ziwei_help`。
+工具：`ziwei_chart`、`ziwei_interpret`、`ziwei_dataset_fetch`、`ziwei_patterns`、`ziwei_classics`、`ziwei_heming`、`ziwei_yunxian`、`ziwei_search`、`ziwei_info`、`ziwei_help`。
 
 ### Skill
 
@@ -110,7 +110,7 @@ npm run data:fetch -- --years 1990
 npm run data:status
 ```
 
-数据集许可 CC BY 4.0，来源见 [NOTICE](./NOTICE)。未导入年份时，页面与 MCP 会返回明确的下载提示。
+数据集许可 CC BY 4.0，来源见 [NOTICE](./NOTICE)。未导入年份时：网页会在解读区给出「下载并导入」按钮，MCP 的 `ziwei_interpret` 会返回 `offerDownload`，助手询问后再调用 `ziwei_dataset_fetch` 下载，导入后自动可查。
 
 ### AI 解读
 
