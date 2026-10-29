@@ -351,4 +351,6 @@ process.stdin.on('data', (chunk) => {
     void handle(msg);
   }
 });
-process.stdin.on('end', () => process.exit(0));
+process.stdin.on('end', () => {
+  // 不立即 process.exit，等待 tools/call 里的异步门控与查询跑完
+});

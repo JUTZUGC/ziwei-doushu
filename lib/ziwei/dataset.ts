@@ -10,10 +10,9 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
+// @ts-expect-error Node 22 内置 node:sqlite，@types/node 还没有对应声明
+import { DatabaseSync } from 'node:sqlite';
 import type { BirthInfo } from './types';
-
-const require = createRequire(import.meta.url);
 
 export const DATASET_RELEASE = 'v4.0-13d';
 export const DATASET_SOURCE = 'https://github.com/Renhuai123/ziwei-doushu/releases/tag/v4.0-13d';
@@ -88,10 +87,7 @@ function openDb(): DatabaseLike | null {
   const file = dbPath();
   if (!fs.existsSync(file)) return null;
   if (cachedDb && cachedPath === file) return cachedDb;
-  const { DatabaseSync } = require('node:sqlite') as {
-    DatabaseSync: new (p: string, opts?: { readOnly?: boolean }) => DatabaseLike;
-  };
-  cachedDb = new DatabaseSync(file, { readOnly: true });
+  cachedDb = new DatabaseSync(file, { readOnly: true }) as unknown as DatabaseLike;
   cachedPath = file;
   return cachedDb;
 }

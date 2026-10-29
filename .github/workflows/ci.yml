@@ -27,3 +27,6 @@ jobs:
 
       - name: 排盘引擎回归
         run: npm test
+
+      - name: 构建
+        run: npm run build
