@@ -1,7 +1,8 @@
 /**
  * MCP 契约回归
  * 1. 工具契约（清单 + 排盘）：直接调用 mcp/tools.ts，不需要宿主门控
- * 2. 宿主门禁：spawn 真实 server，非百度搭子环境必须拒绝 initialize
+ * 2. 宿主门禁：spawn 真实 server；非百度搭子断言四种方法全部被拒绝，
+ *    百度搭子内断言放行且工具可用
  */
 
 import assert from 'node:assert';
@@ -38,14 +39,18 @@ async function assertChart() {
   assert.equal(data.palaces?.length, 12, '命盘应有 12 宫');
 }
 
-async function assertGateDenies() {
+async function assertHostGate() {
   const tsxCli = path.join(process.cwd(), 'node_modules', 'tsx', 'dist', 'cli.mjs');
   const child = spawn(process.execPath, [tsxCli, 'mcp/server.ts'], {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 
   let buffer = '';
-  type Response = { id?: number; error?: { message?: string; data?: { code?: string } } };
+  type Response = {
+    id?: number;
+    error?: { message?: string; data?: { code?: string } };
+    result?: { tools?: { name: string }[]; content?: { text?: string }[] };
+  };
   const METHODS = ['initialize', 'ping', 'tools/list', 'tools/call'];
   const got = new Map<number, Response>();
   const all = new Promise<Map<number, Response>>((resolve, reject) => {
@@ -86,11 +91,27 @@ async function assertGateDenies() {
 
   try {
     const responses = await all;
-    for (let i = 0; i < METHODS.length; i++) {
-      const msg = responses.get(i + 1);
-      assert.equal(msg?.error?.message, 'HOST_NOT_ALLOWED', `非百度搭子环境必须拒绝 ${METHODS[i]}`);
-      assert.equal(msg?.error?.data?.code, 'HOST_NOT_ALLOWED');
+    const init = responses.get(1);
+    if (init?.error?.message === 'HOST_NOT_ALLOWED') {
+      // 非百度搭子：四种方法都必须被拒绝
+      for (let i = 0; i < METHODS.length; i++) {
+        const msg = responses.get(i + 1);
+        assert.equal(msg?.error?.message, 'HOST_NOT_ALLOWED', `非百度搭子环境必须拒绝 ${METHODS[i]}`);
+        assert.equal(msg?.error?.data?.code, 'HOST_NOT_ALLOWED');
+      }
+      console.log('  · 宿主门禁：拒绝路径（非百度搭子）');
+      return;
     }
+
+    // 百度搭子内：门禁放行，工具必须可用
+    assert.ok(init?.result, 'initialize 应成功');
+    const list = responses.get(3);
+    const names = (list?.result?.tools ?? []).map((t) => t.name);
+    assert.equal(names.length, EXPECTED.length, `工具数量应为 ${EXPECTED.length}，实际 ${names.length}`);
+    const chart = responses.get(4);
+    const data = JSON.parse(chart?.result?.content?.[0]?.text ?? '{}') as { birthInfo?: { year?: number } };
+    assert.equal(data.birthInfo?.year, 1950);
+    console.log('  · 宿主门禁：放行路径（百度搭子）');
   } finally {
     child.kill();
   }
@@ -99,7 +120,7 @@ async function assertGateDenies() {
 async function main() {
   assertTools();
   await assertChart();
-  await assertGateDenies();
+  await assertHostGate();
   console.log('✓ MCP 契约回归通过：tools / ziwei_chart / 宿主门禁');
 }
 
