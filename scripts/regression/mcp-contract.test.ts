@@ -66,8 +66,8 @@ async function main() {
 
     const list = responses.get(2) as { result?: { tools?: { name: string }[] } };
     const names = (list.result?.tools ?? []).map((t) => t.name);
-    assert.equal(names.length, 8, `工具数量应为 8，实际 ${names.length}`);
-    for (const n of ['ziwei_chart', 'ziwei_interpret', 'ziwei_patterns', 'ziwei_classics', 'ziwei_heming', 'ziwei_yunxian', 'ziwei_search', 'ziwei_info']) {
+    assert.equal(names.length, 9, `工具数量应为 9，实际 ${names.length}`);
+    for (const n of ['ziwei_chart', 'ziwei_interpret', 'ziwei_patterns', 'ziwei_classics', 'ziwei_heming', 'ziwei_yunxian', 'ziwei_search', 'ziwei_info', 'ziwei_help']) {
       assert.ok(names.includes(n), `缺少工具 ${n}`);
     }
 

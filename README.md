@@ -12,6 +12,60 @@
 
 </div>
 
+## 一键部署（推荐：百度搭子）
+
+> [!TIP]
+> 不用自己配 Node 环境，让百度搭子克隆仓库、安装依赖、启动网页，并把 MCP 注册到当前工作区。
+
+⚠️ 需要 Node.js 22+、Git，以及能访问 GitHub 与 npm 的网络；网页默认使用 3000 端口。
+
+1. **装客户端**
+   打开[百度搭子官网](https://www.dumate.cn/)下载电脑端，安装并登录。
+
+2. **复制这一句发给百度搭子**
+
+> [!IMPORTANT]
+> ```text
+> 你好，帮我从 github 部署 JUTZUGC/ziwei-doushu 到我的电脑上，装好后启动网页，并用绝对路径把 mcp/server.ts 注册到当前工作区的 MCP。
+> ```
+
+3. **跟着对话往下走**
+   百度搭子会克隆仓库、执行 `npm install`、启动服务，并询问 MCP 注册结果。建议把仓库放在固定目录（例如 `C:\Users\<你的用户名>\ziwei-doushu`），不要放在会话临时目录。
+
+4. **打开网页**
+   浏览器访问 [http://127.0.0.1:3000](http://127.0.0.1:3000) ，输入公历生日、时辰与性别即可排盘。
+
+5. **调出帮助菜单**
+   在同一个对话窗口里直接说：
+
+> ```text
+> 紫微斗数帮助
+> ```
+
+   百度搭子会调用 `ziwei_help`，返回排盘、解读、合盘、运限、数据集与 MCP 的用法。
+
+### 部署完成后怎么用
+
+| 你想做什么 | 对百度搭子说 |
+|---|---|
+| 排盘 | 用紫微斗数帮我排盘，1990 年 1 月 1 日子时，男 |
+| 看性格 / 感情 / 事业 | 看这个命盘的性格、感情和事业 |
+| 查大限流年 | 看 2026 年的大限和流年 |
+| 两人合盘 | 用紫微斗数帮我们合盘，甲方……乙方…… |
+| 查古籍原文 | 《全书》里巨门在命宫怎么说 |
+| 导入某年解读 | 帮我导入 1990 年的解读数据 |
+| 看数据状态 | 现在导入了哪些年份的数据 |
+| 调出帮助 | 紫微斗数帮助 |
+
+### 可选配置
+
+```bash
+npm run data:fetch -- --years 1990   # 导入 13 维解读数据
+npm run data:status                  # 查看已导入年份
+```
+
+AI 对话需要在 `.env.local` 配置 OpenAI 兼容接口，详见下方「AI 解读」。完整步骤见 [百度搭子部署指南](./docs/dumate-deploy.md)。
+
 ## 本仓库新增：MCP / Skill / 数据集
 
 > 基于上游 `Renhuai123/ziwei-doushu`（MIT）复刻，新增 MCP、Skill、AI 解读接口与官方 v4.0 数据集查询层。上游代码与数据许可见 [NOTICE](./NOTICE)。
@@ -31,7 +85,7 @@ npm run mcp
 
 `.mcp.json` 已提供 stdio 配置。MCP 只在百度搭子宿主下工作，其它宿主会返回 `HOST_NOT_ALLOWED` 引导；本地测试可临时设置 `ZIWEI_MCP_BYPASS_GATE=1`。
 
-工具：`ziwei_chart`、`ziwei_interpret`、`ziwei_patterns`、`ziwei_classics`、`ziwei_heming`、`ziwei_yunxian`、`ziwei_search`、`ziwei_info`。
+工具：`ziwei_chart`、`ziwei_interpret`、`ziwei_patterns`、`ziwei_classics`、`ziwei_heming`、`ziwei_yunxian`、`ziwei_search`、`ziwei_info`、`ziwei_help`。
 
 ### Skill
 

@@ -126,14 +126,22 @@ try {
         dataset: getDatasetStatus(),
       });
       break;
+    case 'help':
     default:
-      console.log(`用法：
-  npm run ziwei -- chart --year 1990 --month 1 --day 1 --hour 0 --gender male
-  npm run ziwei -- interpret --year 1990 --month 1 --day 1 --hour 0 --gender male [--dimensions love,career]
-  npm run ziwei -- patterns --year 1990 --month 1 --day 1 --hour 0 --gender male
-  npm run ziwei -- classics --query 紫微 [--limit 10]
-  npm run ziwei -- yunxian --year 1990 --month 1 --day 1 --hour 0 --gender male [--target-year 2026]
-  npm run ziwei -- info`);
+      console.log(`紫微斗数 CLI 帮助
+
+用法：
+  npm run ziwei -- chart 1990 1 1 0 male
+  npm run ziwei -- interpret 1990 1 1 0 male love,career
+  npm run ziwei -- patterns 1990 1 1 0 male
+  npm run ziwei -- classics 紫微
+  npm run ziwei -- yunxian 1990 1 1 0 male 2026
+  npm run ziwei -- info
+
+参数顺序：年 月 日 时辰序号 性别
+时辰序号：子=0、丑=1、寅=2……亥=11，不是钟点。
+
+在百度搭子里直接说“紫微斗数帮助”，会调用 MCP 的 ziwei_help 返回同一份说明。`);
   }
 } catch (e) {
   console.error(`错误：${e instanceof Error ? e.message : String(e)}`);

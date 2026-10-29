@@ -184,6 +184,16 @@ const TOOLS = [
     description: '返回版本、上游来源、许可与本地数据集导入状态。',
     inputSchema: { type: 'object', properties: {} },
   },
+  {
+    name: 'ziwei_help',
+    description: '返回百度搭子里的使用帮助：部署后怎么排盘、怎么查解读、怎么问合盘、怎么调出帮助菜单。用户说“帮助”“怎么用”时调用。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        topic: { type: 'string', enum: ['quickstart', 'tools', 'data', 'mcp', 'all'], description: '帮助主题，默认 all' },
+      },
+    },
+  },
 ];
 
 function spouseInfo(chart: ZiweiChart) {
@@ -266,6 +276,40 @@ async function callTool(name: string, args: any): Promise<unknown> {
         dataset: getDatasetStatus(),
         platform: '仅限百度搭子（host gate: dumate）',
       };
+    case 'ziwei_help': {
+      const topic = args?.topic ?? 'all';
+      return {
+        title: '紫微斗数 · 百度搭子使用帮助',
+        topic,
+        quickstart: [
+          '打开浏览器访问本机 3000 端口，输入公历生日与时辰即可排盘。',
+          '在百度搭子对话框里直接说：用紫微斗数帮我排盘，1990 年 1 月 1 日子时，男。',
+          '想看 13 维解读，先说：帮我导入 1990 年的解读数据；再说：看这个命盘的感情和事业。',
+          '想合盘，说：用紫微斗数帮我们合盘，甲方……乙方……。',
+          '想调出这份帮助，随时说：紫微斗数帮助。',
+        ],
+        tools: TOOLS.map((t) => ({ name: t.name, description: t.description })),
+        examples: [
+          { ask: '帮我排盘：1990 年 1 月 1 日子时，男', tool: 'ziwei_chart' },
+          { ask: '这个命盘的感情和事业怎么样？', tool: 'ziwei_interpret + ziwei_patterns' },
+          { ask: '2026 年我的大限和流年如何？', tool: 'ziwei_yunxian' },
+          { ask: '我们俩合盘看看', tool: 'ziwei_heming' },
+          { ask: '《全书》里巨门在命宫怎么说？', tool: 'ziwei_classics' },
+          { ask: '现在导入了哪些年份的数据？', tool: 'ziwei_info' },
+        ],
+        data: {
+          source: '官方 v4.0 数据集（CC BY 4.0）',
+          import: 'npm run data:fetch -- --years 1990',
+          status: 'npm run data:status',
+          note: '数据按年份导入；没导入时排盘与古籍仍可用，13 维解读会提示先导入。',
+        },
+        mcp: {
+          command: 'npx tsx <仓库绝对路径>/mcp/server.ts',
+          note: 'MCP 只在百度搭子中可用；换工作区需要重新注册。',
+        },
+        disclaimer: '命理仅供参考，重大决定请结合现实情况与专业意见。',
+      };
+    }
     default:
       throw new Error(`未知工具：${name}`);
   }

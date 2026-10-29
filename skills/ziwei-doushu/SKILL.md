@@ -30,6 +30,9 @@ description: 紫微斗数排盘与解读。用户询问命盘、紫微斗数、�
 | `ziwei_yunxian` | 大限 / 流年 |
 | `ziwei_search` | 古籍全文检索 |
 | `ziwei_info` | 版本与数据集状态 |
+| `ziwei_help` | 返回使用帮助与示例 |
+
+用户说“帮助”“怎么用”“有哪些功能”时，先调用 `ziwei_help`，再把返回的 quickstart 与 examples 转述给用户。
 
 ### 兜底：CLI
 
@@ -42,6 +45,7 @@ npm run ziwei -- patterns --year 1990 --month 1 --day 1 --hour 0 --gender male
 npm run ziwei -- classics --query 紫微
 npm run ziwei -- yunxian --year 1990 --month 1 --day 1 --hour 0 --gender male --target-year 2026
 npm run ziwei -- info
+npm run ziwei -- help
 ```
 
 ## 参数约定
