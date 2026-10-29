@@ -32,7 +32,7 @@ description: 紫微斗数排盘与解读。用户询问命盘、紫微斗数、�
 | `ziwei_info` | 版本与数据集状态 |
 | `ziwei_help` | 返回使用帮助与示例 |
 
-用户说“帮助”“怎么用”“有哪些功能”时，先调用 `ziwei_help`，再把返回的 quickstart 与 examples 转述给用户。
+用户说“帮助”“怎么用”“有哪些功能”时，先调用 `ziwei_help`，再把返回的 quickstart、examples 与 tips 转述给用户。
 
 ### 兜底：CLI
 

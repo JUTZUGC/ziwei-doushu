@@ -302,6 +302,11 @@ export async function callTool(name: string, args: any): Promise<unknown> {
           status: 'npm run data:status',
           note: '数据按年份导入；没导入时排盘与古籍仍可用，13 维解读会提示先导入。',
         },
+        tips: [
+          '注册或更新 MCP 后，先重启百度搭子客户端，工具才会进入工具列表；新开对话不一定生效。',
+          '说「紫微斗数帮助」时如果回答来自知识库、没有调用工具，直接说「调用 ziwei_help」即可强制走 MCP。',
+          'MCP 只在百度搭子中可用，其它宿主会返回 HOST_NOT_ALLOWED，没有绕过开关。',
+        ],
         mcp: {
           command: 'npx tsx <仓库绝对路径>/mcp/server.ts',
           note: 'MCP 只在百度搭子中可用；换工作区需要重新注册。',
