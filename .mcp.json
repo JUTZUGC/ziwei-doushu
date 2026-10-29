@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ziwei-doushu": {
+      "command": "npx",
+      "args": ["tsx", "mcp/server.ts"]
+    }
+  }
+}

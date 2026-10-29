@@ -1,0 +1,26 @@
+# NOTICE
+
+本仓库基于以下上游项目复刻：
+
+- 上游：`Renhuai123/ziwei-doushu`
+- 上游地址：https://github.com/Renhuai123/ziwei-doushu
+- 同步 commit：`ff9a1470ebe652e57b9d690f5d01db9a04f47aae`（2026-10-27）
+- 上游代码许可：MIT（见 `LICENSE`）
+- 上游数据许可：CC BY 4.0（见 `DATASET-LICENSE`）
+
+本仓库新增/修改的内容：
+
+- `mcp/`：stdlib MCP server，提供排盘、解读、格局、古籍、合盘、运限、检索工具，并带百度搭子宿主门控
+- `skills/ziwei-doushu/`：Skill 插件与 CLI 兜底
+- `app/api/interpret`、`app/api/heming`、`app/api/dataset`：AI 解读、合盘与数据集查询接口
+- `lib/ziwei/dataset.ts`：官方 v4.0 解读数据集的本地 SQLite 查询层
+- `scripts/data/fetch.ts`：官方 v4.0 数据集下载、SHA256 校验与导入
+- `components/DatasetPanel.tsx`：命盘页的 13 维数据集解读面板
+
+数据集说明：
+
+- 官方 Release：https://github.com/Renhuai123/ziwei-doushu/releases/tag/v4.0-13d
+- 数据集不随本仓库提交，由 `npm run data:fetch` 按年份下载
+- 引用倪海厦原话时，遵循上游 README 所述的 CC BY-NC-SA 4.0 边界，仅用于非商业性解读与学习
+
+本仓库为第三方复刻，与上游作者无隶属关系；上游代码与数据的版权归其各自作者所有。

@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+dist/
+*.tsbuildinfo
+.DS_Store
+node_modules
+data/raw/
+data/*.sqlite
+data/*.sqlite-*
+.download/
