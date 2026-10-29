@@ -98,7 +98,7 @@ Windows 路径示例（注意 JSON 里反斜杠要写成双反斜杠）：
 
 仓库根目录的 `.mcp.json` 只适用于支持 `cwd` 的客户端；百度搭子请用上面的绝对路径写法。
 
-MCP 只在百度搭子中可用，其它宿主调用会返回 `HOST_NOT_ALLOWED` 并附带安装指引。换工作区后需要重新注册。
+门禁是硬约束，没有绕过开关：`initialize`、`ping`、`tools/list`、`tools/call` 都先校验宿主进程链，非百度搭子一律返回 `HOST_NOT_ALLOWED` 并附带安装指引；宿主进程检测失败时同样拒绝。Skill 的 CLI 兜底也走同一套门禁。换工作区后需要重新注册。
 
 ## 数据集
 
@@ -141,13 +141,15 @@ AI_MODEL=deepseek-chat
 
 | 场景 | 状态 |
 |---|---|
-| `npm run typecheck` | 已验证 2026-10-28 |
-| `npm test`（含 MCP 契约） | 已验证 2026-10-28 |
-| `npm run build` | 已验证 2026-10-28 |
+| `npm run typecheck` | 已验证 2026-10-29 |
+| `npm test`（含 MCP 契约） | 已验证 2026-10-29 |
+| `npm run build` | 已验证 2026-10-29 |
 | GitHub Actions CI | success |
 | 导入 1950 年数据集（8760 盘） | 已验证 2026-10-28 |
-| MCP 工具列表与排盘调用 | 已验证 2026-10-28 |
-| 非目标宿主返回 `HOST_NOT_ALLOWED` | 已验证 2026-10-28 |
+| MCP 工具列表与排盘调用 | 已验证 2026-10-29 |
+| 非目标宿主返回 `HOST_NOT_ALLOWED` | 已验证 2026-10-29 |
+| 严格门禁：`initialize` / `tools/list` 均被拒绝 | 已验证 2026-10-29 |
+| 百度搭子宿主正向放行（`dumate`） | 未实测（本机未装百度搭子） |
 | `/api/interpret` 与 `/api/heming` 流式输出 | 用本地 mock 模型验证 |
 | 真实模型 Key、全量 77 年数据 | 未实测 |
 

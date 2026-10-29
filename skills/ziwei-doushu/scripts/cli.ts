@@ -15,6 +15,7 @@ import { detectPatterns, getMingGongSummary } from '../../../lib/ziwei/patterns'
 import { searchClassics, ALL_BOOKS, TOTAL_PARAGRAPHS } from '../../../lib/classics';
 import { getDatasetStatus, getInterpretation, pickDimensions, DIMENSION_LABELS } from '../../../lib/ziwei/dataset';
 import { getDaXianIndexForYear, getDaXianStartYear, getDaXianYears } from '../../../lib/ziwei/yunxian-context';
+import { createHostGate } from '../../../mcp/host-gate.mjs';
 import type { BirthInfo } from '../../../lib/ziwei/types';
 
 const argv = process.argv.slice(2);
@@ -62,8 +63,24 @@ function print(data: unknown) {
   console.log(JSON.stringify(data, null, 2));
 }
 
-try {
-  switch (cmd) {
+const gate = createHostGate({
+  allow: ['dumate'],
+  label: '百度搭子',
+  downloadUrl: 'https://www.dumate.cn/',
+  guideUrl: 'https://github.com/JUTZUGC/ziwei-doushu',
+  hint: '本 CLI 只允许在百度搭子中使用。',
+  onError: 'deny',
+});
+
+async function main() {
+  const check = await gate.check();
+  if (!check.ok) {
+    console.error(JSON.stringify(check.payload, null, 2));
+    process.exit(1);
+  }
+
+  try {
+    switch (cmd) {
     case 'chart':
       print(generateChart(birth()));
       break;
@@ -142,8 +159,11 @@ try {
 时辰序号：子=0、丑=1、寅=2……亥=11，不是钟点。
 
 在百度搭子里直接说“紫微斗数帮助”，会调用 MCP 的 ziwei_help 返回同一份说明。`);
+    }
+  } catch (e) {
+    console.error(`错误：${e instanceof Error ? e.message : String(e)}`);
+    process.exit(1);
   }
-} catch (e) {
-  console.error(`错误：${e instanceof Error ? e.message : String(e)}`);
-  process.exit(1);
 }
+
+main();

@@ -83,7 +83,7 @@ npm run dev          # http://localhost:3000
 npm run mcp
 ```
 
-`.mcp.json` 已提供 stdio 配置。MCP 只在百度搭子宿主下工作，其它宿主会返回 `HOST_NOT_ALLOWED` 引导；本地测试可临时设置 `ZIWEI_MCP_BYPASS_GATE=1`。
+`.mcp.json` 已提供 stdio 配置。门禁是硬约束：`initialize`、`ping`、`tools/list`、`tools/call` 全部先校验宿主进程链，非百度搭子一律返回 `HOST_NOT_ALLOWED`，没有绕过开关。Skill 的 CLI 兜底走同一套门禁。
 
 工具：`ziwei_chart`、`ziwei_interpret`、`ziwei_patterns`、`ziwei_classics`、`ziwei_heming`、`ziwei_yunxian`、`ziwei_search`、`ziwei_info`、`ziwei_help`。
 
