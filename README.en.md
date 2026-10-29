@@ -12,6 +12,8 @@
 
 </div>
 
+An open-source Zi Wei Dou Shu charting engine: enter a Gregorian birth date to get a full chart with the twelve palaces, Four Transformations, decade and annual cycles, 13-topic readings and classical text search. It also runs as an MCP server for Baidu Dumate, or as a local web app.
+
 ## One-click deploy (recommended: Dumate)
 
 > [!TIP]
